@@ -1,3 +1,5 @@
+DISCLAIMER: This module is not yet complete. It may change dramatically between now and release.
+
 luabnet is a Lua library for retrieving data from Blizzard Entertainment's Battle.net Community Platform API.
 
 This module implements utility functions used by the luabnet_wow and luabnet_d3 modules (luabnet_d3 has not yet been created).
