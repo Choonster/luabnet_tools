@@ -65,7 +65,7 @@ This file has been modified slightly to return the hmac_sha1 function (for requi
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 
-local BIT_DEBUG = true
+local BIT_DEBUG = false
 
 local BITLIB = bit32 -- Use Lua 5.2's bitwise library if present
 if not BITLIB then
@@ -394,7 +394,7 @@ while os.time()-tstart<=10 do sha1(string.rep("a", 200)) n = n + 1 end
 print("times: ",n)
 if true then return end
 --]]
---[[------------ VALIDATION TESTS -- uncomment to execute  ------------------------------------
+----[[------------ VALIDATION TESTS -- uncomment to execute  ------------------------------------
 local tstart = os.time()
 
 print(sha1(("x"):rep(64)), "bb2fa3ee7afb9f54c6dfb5d021f14b1ffe40c163")
