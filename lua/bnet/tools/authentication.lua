@@ -13,13 +13,11 @@ This is just here so LuaDoc recognises this as a module.
 module("bnet.tools.authentication")
 ]]
 
-require("bnet.tools.external.sha1") -- SHA1/HMAC-SHA1 algorithms, packaged with this library. See sha1.lua for licence and attribution.
 local tablex = require("pl.tablex") -- Penlight
-local json   = require("json") -- LuaJSON
+local json_decode = require("json").decode -- LuaJSON
 local http   = require("socket.http") -- LuaSocket
-local url    = require("socket.url")
-local mime   = require("mime") 
-local ltn12  = require("ltn12")
+local url_absolute = require("socket.url").absolute
+local base64 = require("mime").b64
 
 local https_ok, https = pcall(require, "ssl.https") -- LuaSec (optional dependency)
 if not https_ok then
@@ -27,20 +25,26 @@ if not https_ok then
 end
 https = https_ok and https or nil -- If it wasn't loaded, https will contain an error message instead of the module, so set it to nil instead.
 
+local hmac_sha1;
+if https then -- Only load this if we have LuaSec installed
+	hmac_sha1 = require("bnet.tools.external.sha1") -- SHA1/HMAC-SHA1 algorithms, packaged with this library. See sha1.lua for licence and attribution.
+end
+
+
 local storage = ...
 local tools = storage.module
 local debugprint, wipe, createRef, decompress, splitPath, joinPath = unpack(storage.publicFuncs)
 local Get, Set, GetCache, SetCache, InitCache, GetCacheTable, SetCacheTable = unpack(storage.privateFuncs)
 
-local match, format, table_concat = string.match, string.format, table.concat
+local format, table_concat = string.format, table.concat
 local difftime, time, date, clock = os.difftime, os.time, os.date, os.clock
-local base64 = mime.b64
-local hmac_sha1 = hmac_sha1
-local json_decode = json.decode
-local url_absolute = url.absolute
+
+
+
+
 
 local sinkTable, urlTable, headerTable = {}, {}, {}
-local sink = ltn12.sink.table(sinkTable)
+local sink = require("ltn12").sink.table(sinkTable)
 
 local requestTable = {
 	protocol = "tlsv1",
@@ -64,15 +68,6 @@ local function Sign(self, path, time, verb)
 	local sig = hmac_sha1(privateKey, str)
 	sig = base64(sig)
 	return sig
-end
-
---- Get the path section of an absolute URL.
--- Primarily used in :GetAuctionData to convert an absolute URL returned by :GetAuctionDataURL into a path for :SendRequestRaw.
--- @param URL (string) An absolute URL. Must contain the current host as returned by :GetHost.
--- @return path: (string) The path section of the URL.
-function tools:GetPath(URL)
-	debugprint("URL:", URL)
-	return match(URL, self:GetHost() .. "(%/.+)$")
 end
 
 --- Get the authorization HTTP header
@@ -105,8 +100,8 @@ function tools:IsAuthenticated()
 	return Get(self, "AUTHENTICATED")
 end
 
---- Send a HTTP GET request.
--- Used as a backend for :SendRequest and also for retrieving auction data dumps, which are too large for the JSON decoder to handle whole.
+-- Send a HTTP GET request. (No longer public)
+-- Used as a backend for :SendRequest. (No longer used for auction data dumps)
 -- @param path (string) The path to send the request to (usually starting with /api/wow/).
 -- @param fields (string, optional) A list of comma-separated fields to query.
 -- @param locale (string, optional) The locale to retrieve the data in. If nil or omitted, the locale set with :SetLocale will be used.
@@ -118,7 +113,7 @@ end
 -- @return code: (number) The HTTP response status code.
 -- @return status: (string) The full HTTP response status.
 -- @return headers: (table) The HTTP headers of the response.
-function tools:SendRequestRaw(path, fields, locale, lastModified, forceRefresh)
+local function SendRequestRaw(path, fields, locale, lastModified, forceRefresh)
 	local secure = https and self:IsAuthenticated()
 	fields = fields or ""
 	locale = locale or self:GetLocale()
@@ -207,9 +202,9 @@ function tools:SendRequest(path, fields, locale, reqType, cachePath, expires, fo
 		
 		local lastMod;
 		if reqType == "auctionURL" then -- Auction URL results have a different structure to other types
-			aucTab = result.files[1]
-			result = aucTab.url
-			lastMod = aucTab.lastModified
+			local aucTable = result.files[1]
+			result = aucTable.url
+			lastMod = aucTable.lastModified
 		else
 			lastMod = result.lastModified
 		end
