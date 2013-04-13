@@ -4,7 +4,7 @@
 -- @name: bnet.tools.authentication
 -- Implements authentication and HTTP GET requests.
 --
---[[ Credit to Cyaga, author of the battlenet RubyGem whose authentication module helped me to understand how to handle the authentication process.
+--[[ Thanks to Cyaga, author of the battlenet RubyGem whose authentication module helped me to understand how to handle the authentication process.
 		http://us.battle.net/wow/en/forum/topic/2369922944
 		https://github.com/BinaryMuse/battlenet
 ]]
