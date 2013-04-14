@@ -3,7 +3,7 @@ Requires the first module listed that exists, else raises like `require`.
 If a non-string is encountered, it is returned.
 Second return value is module name loaded (or '').
 
-This function has been copied from the compress.deflatelua module.
+This function has been copied from the compress.deflatelua module and adapted slightly.
 (c) 2008-2012 David Manura. Licensed under the same terms as Lua (MIT).
 
 http://lua-users.org/wiki/ModuleCompressDeflateLua
@@ -35,7 +35,7 @@ THE SOFTWARE.
 ===============================================================================
 ]]
 
-local function requireany(...)
+local function requireany(msg, ...)
 	local errs = {}
 	for i = 1, select("#", ...) do
 		local name = select(i, ...)
@@ -44,7 +44,7 @@ local function requireany(...)
 		if ok then return mod, name end
 		errs[#errs+1] = mod
 	end
-	error(table.concat(errs, "\n"), 2)
+	error(msg .. "\n\n" .. table.concat(errs, "\n"), 2)
 end
 
 return requireany

@@ -80,7 +80,7 @@ end
 -- Filesystem --
 --]]------------
 			  --Library names:  lzlib,   lua-zlib,   compress.deflatelua
-local lib, libname = requireany("gzip", "lua-zlib", "compress.deflatelua")
+local lib, libname = requireany("bnet.tools requires gzip (lzlib), zlib (lua-zlib) or compress.deflatelua to function. See README.md for a full list of dependencies.", "gzip", "lua-zlib", "compress.deflatelua")
 local decompress;
 
 local TEMP_PATH_UNCOMPRESSED = plfuncs.tmpname()
