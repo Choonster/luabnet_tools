@@ -5,7 +5,7 @@ This file was linked to here:
 This file was downloaded from here:
 	http://cube3d.de/uploads/Main/sha1.txt
 	
-This file has been modified slightly to return the hmac_sha1 function (for require) and use an existing bitwise library if one is installed.
+This file has been modified to return the hmac_sha1 function (for require) and use an existing bitwise library if one is installed.
 ]]
 
 -------------------------------------------------------------------------------
@@ -66,6 +66,7 @@ This file has been modified slightly to return the hmac_sha1 function (for requi
 -------------------------------------------------------------------------------
 
 local BIT_DEBUG = false
+local SHA_DEBUG = false
 
 local BITLIB = bit32 -- Use Lua 5.2's bitwise library if present
 if not BITLIB then
@@ -101,7 +102,7 @@ end
 local bxor, w32_not, w32_rot, w32_xor, w32_xor_n, w32_or, w32_or3, w32_and, w32_add, w32_add_n, w32_to_hexstring
 
 if BITLIB and not BIT_DEBUG then -- If we have a bitwise library, initialise the w32_ names with the appropriate functions
-
+	print("loaded bitfuncs")
 	-- Bitwise and, or, xor functions (included in all 3 libraries)
 	w32_not = BITLIB.bnot
 	w32_and = BITLIB.band
@@ -110,6 +111,16 @@ if BITLIB and not BIT_DEBUG then -- If we have a bitwise library, initialise the
 	
 	-- Left bitwise rotation: bit32 = lrotate, LBO = rol, bitlib = not included
 	w32_rot = BITLIB.lrotate or BITLIB.rol
+	if not w32_rot then
+		-- Left bitwise rotation of `val` by `shift` bits, adapted from the code in the Wikipedia article:
+		-- https://en.wikipedia.org/wiki/Circular_shift#Implementing_circular_shifts
+		local lshift, rshift = BITLIB.lshift, BITLIB.rshift
+		w32_rot = function(val, shift)
+			local x = lshift(val, shift)
+			local y = rshift(val, 32-shift)
+			return bxor(x, y)
+		end
+	end
 	
 	-- Cast/truncate the number to an acceptable range: bit32 = not included, LBO = tobit, bitlib = cast
 	local tobit = BITLIB.tobit or BITLIB.cast
@@ -136,7 +147,7 @@ if BITLIB and not BIT_DEBUG then -- If we have a bitwise library, initialise the
 	end	
 
 else
-
+	print("loaded old funcs")
 	-- caching function for functions that accept 2 arguments, both of values between
 	-- 0 and 255. The function to be cached is passed, all values are calculated
 	-- during loading and a function is returned that returns the cached values (only)
@@ -239,15 +250,15 @@ else
 	w32_not = function(a)
 		return 4294967295-(a % 4294967296)
 	end
+	
+	-- shift the bits of a 32 bit word. Don't use negative values for "bits" -- NOTE: This is a bitwise left rotation of `a` by `bits`.
+	w32_rot = function(a, bits)
+		local b2 = 2^(32-bits)
+		local a,b = modf(a/b2)
+		return a+b*b2*(2^(bits))
+	end
 
 end -- if not BITLIB then
-
--- shift the bits of a 32 bit word. Don't use negative values for "bits" -- NOTE: This is a bitwise left rotation of a by bits.
-w32_rot = w32_rot or function(a, bits)
-	local b2 = 2^(32-bits)
-	local a,b = modf(a/b2)
-	return a+b*b2*(2^(bits))
-end
 
 -- adding 2 32bit numbers, cutting off the remainder on 33th bit
 w32_add = w32_add or function(a,b) return (a+b) % 4294967296 end
@@ -262,6 +273,14 @@ end
 
 -- converting the number to a hexadecimal string
 w32_to_hexstring = w32_to_hexstring or function(w) return format("%08x",w) end
+
+local function printhex(...)
+	io.write("\n")
+	for i = 1, select("#", ...) do
+		io.write(w32_to_hexstring(select(i,...)), "\t")
+	end
+	io.write("\n\n")
+end
 
 -- calculating the SHA1 for some text
 local function sha1(msg)
@@ -301,6 +320,7 @@ local function sha1(msg)
 
 		for t = 0, 15 do
 			W[t] = bytes_to_w32(msg:byte(start, start + 3))
+			-- if SHA_DEBUG then print("W["..t.."] = "..w32_to_hexstring(W[t])) end
 			start = start + 4
 		end
 
@@ -309,7 +329,9 @@ local function sha1(msg)
 		--
 		for t = 16, 79 do
 			-- For t = 16 to 79 let Wt = S1(Wt-3 XOR Wt-8 XOR Wt-14 XOR Wt-16).
+			if SHA_DEBUG and t<25 then print("t="..t,"XOR",w32_to_hexstring(w32_xor_n(W[t-3], W[t-8], W[t-14], W[t-16]))) end
 			W[t] = w32_rot(w32_xor_n(W[t-3], W[t-8], W[t-14], W[t-16]), 1)
+			if SHA_DEBUG and t<25 then print("\tROT",w32_to_hexstring(W[t])) end
 		end
 
 		A,B,C,D,E = H0,H1,H2,H3,H4
@@ -339,7 +361,9 @@ local function sha1(msg)
 		end
 		-- Let H0 = H0 + A, H1 = H1 + B, H2 = H2 + C, H3 = H3 + D, H4 = H4 + E.
 		H0,H1,H2,H3,H4 = w32_add(H0, A),w32_add(H1, B),w32_add(H2, C),w32_add(H3, D),w32_add(H4, E)
+		if SHA_DEBUG then printhex(H0,H1,H2,H3,H4) end
 	end
+	SHA_DEBUG = false
 	local f = w32_to_hexstring
 	return f(H0) .. f(H1) .. f(H2) .. f(H3) .. f(H4)
 end
@@ -350,7 +374,7 @@ local function hex_to_binary(hex)
 	end)
 end
 
-function sha1_binary(msg)
+local function sha1_binary(msg)
 	return hex_to_binary(sha1(msg))
 end
 
@@ -394,7 +418,7 @@ while os.time()-tstart<=10 do sha1(string.rep("a", 200)) n = n + 1 end
 print("times: ",n)
 if true then return end
 --]]
-----[[------------ VALIDATION TESTS -- uncomment to execute  ------------------------------------
+---[[------------ VALIDATION TESTS -- uncomment to execute  ------------------------------------
 local tstart = os.time()
 
 print(sha1(("x"):rep(64)), "bb2fa3ee7afb9f54c6dfb5d021f14b1ffe40c163")
@@ -714,8 +738,8 @@ print("Required time for tests: ",diff) --768
 --END
 
 
-----[[-- arithmethic benching
-if not BIT_DEBUG then return end
+--[[-- arithmethic benching
+--if not BIT_DEBUG then return end
 
 if BITLIB then
 	local bit_xor_with_0x5c = {}
@@ -752,7 +776,7 @@ if BITLIB then
 end
 
 -- splits an 8-bit number into 8 bits, returning all 8 bits as booleans
-local function byte_to_bits (b)
+local function test_byte_to_bits (b)
 	local b = function (n)
 		local b = floor(b/n)
 		return b%2==1
@@ -761,21 +785,21 @@ local function byte_to_bits (b)
 end
 
 -- debug function for visualizing bits in a string
-local function bits_to_string (a,b,c,d,e,f,g,h)
+local function test_bits_to_string (a,b,c,d,e,f,g,h)
 	local function x(b) return b and "1" or "0" end
 	return ("%s%s%s%s %s%s%s%s"):format(x(a),x(b),x(c),x(d),x(e),x(f),x(g),x(h))
 end
 
 -- debug function for converting a 8-bit number as bit string
-local function byte_to_bit_string (b)
-	return bits_to_string(byte_to_bits(b))
+local function test_byte_to_bit_string (b)
+	return test_bits_to_string(test_byte_to_bits(b))
 end
 
 -- debug function for converting a 32 bit number as bit string
-local function w32_to_bit_string(a)
+local function test_w32_to_bit_string(a)
 	if type(a) == "string" then return a end
 	local aa,ab,ac,ad = w32_to_bytes(a)
-	local s = byte_to_bit_string
+	local s = test_byte_to_bit_string
 	return ("%s %s %s %s"):format(s(aa):reverse(),s(ab):reverse(),s(ac):reverse(),s(ad):reverse()):reverse()
 end
 
@@ -787,29 +811,40 @@ local function bench(tx,f,t)
 	local s = os.time()+t
 	while os.time()<s do f() n = n + 1 end
 	nullprint = true
-	print(tx,n,w32_to_bit_string(f()),f)
+	print(tx,n,test_w32_to_bit_string(f()),f)
 	nullprint = false
 	return n
 end
 
 local nullop = function()
-	if nullprint then print("nullop") end
+	if nullprint then print("V V  nullop V V") end
 	return 0
 end
 
 local bitlshift, bitrshift, bitarshift, bitlrot, bitrrot, bitadd, bitadd_n, bithex, bitnot;
 if BITLIB then
+	print("loading bit test funcs")
 	bitnot = BITLIB.bnot
 	bitlshift = BITLIB.lshift
 	bitrshift = BITLIB.rshift
 	bitarshift = BITLIB.arshift
-	bitlrot = BITLIB.lrotate or BITLIB.rol or nullop
+	bitlrot = BITLIB.lrotate or BITLIB.rol
 	bitrrot = BITLIB.rrotate or BITLIB.ror or nullop
 	
 	bithex = BITLIB.tohex or nullop
 	
+	-- Left bitwise rotation of `val` by `shift` bits, adapted from the code in the Wikipedia article:
+	-- https://en.wikipedia.org/wiki/Circular_shift#Implementing_circular_shifts
+	local bitbxor = BITLIB.bxor
+	bitlrot = bitlrot or function(val, shift)
+		local x = bitlshift(val, shift)
+		local y = bitrshift(val, 32-shift)
+		return bitbxor(x, y)
+	end
+	
 	local tobit = BITLIB.tobit or BITLIB.cast
 	if tobit then
+		print("tobit created with ", BITLIB.tobit and "tobit" or "cast")
 		bitadd = function(a, b)
 			return tobit(a + b)
 		end
@@ -822,7 +857,7 @@ if BITLIB then
 			return a
 		end
 	else
-		bitadd, bitadd_n, bithex = nullop, nullop, nullop
+		bitadd, bitadd_n = nullop, nullop
 	end
 else
 	bitlshift, bitrshift, bitarshift, bitlrot, bitrrot, bitadd = nullop, nullop, nullop, nullop, nullop, nullop
