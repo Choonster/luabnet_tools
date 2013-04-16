@@ -1,19 +1,12 @@
---- Blizzard Battle.net Community Platform API Library
--- Easily retrieve various types of data from Blizzard's API in the format of Lua tables.
--- @class: module
--- @name: bnet.tools.authentication
--- Implements authentication and HTTP GET requests.
---
+--- Implements authentication and HTTP GET requests.
+-- @module authentication
+-- @alias tools
+
 --[[ Thanks to Cyaga, author of the battlenet RubyGem whose authentication module helped me to understand how to handle the authentication process.
 		http://us.battle.net/wow/en/forum/topic/2369922944
 		https://github.com/BinaryMuse/battlenet
 ]]
---[[
-This is just here so LuaDoc recognises this as a module.
-module("bnet.tools.authentication")
-]]
 
-local tablex = require("pl.tablex") -- Penlight
 local json_decode = require("json").decode -- LuaJSON
 local http   = require("socket.http") -- LuaSocket
 local url_absolute = require("socket.url").absolute
@@ -30,7 +23,6 @@ if https then -- Only load this if we have LuaSec installed
 	hmac_sha1 = require("bnet.tools.external.sha1") -- SHA1/HMAC-SHA1 algorithms, packaged with this library. See sha1.lua for licence and attribution.
 end
 
-
 local storage = ...
 local tools = storage.module
 local debugprint, wipe, createRef, decompress, splitPath, joinPath = unpack(storage.publicFuncs)
@@ -38,10 +30,6 @@ local Get, Set, GetCache, SetCache, InitCache, GetCacheTable, SetCacheTable = un
 
 local format, table_concat = string.format, table.concat
 local difftime, time, date, clock = os.difftime, os.time, os.date, os.clock
-
-
-
-
 
 local sinkTable, urlTable, headerTable = {}, {}, {}
 local sink = require("ltn12").sink.table(sinkTable)
@@ -71,10 +59,10 @@ local function Sign(self, path, time, verb)
 end
 
 --- Get the authorization HTTP header
--- @param path (string) The path to sign (usually starting with /api/wow/).
--- @param time (number, optional) The time to sign (as returned by os.time()). If nil or omitted, the current time is used.
--- @param verb (string, optional) The HTTP verb to sign. If nil or omitted, defaults to "GET".
--- @return authorization: (string) The authorization section of the HTTP header.
+-- @string path The path to sign (usually starting with /api/wow/).
+-- @number[opt] time The time to sign (as returned by os.time()). If nil or omitted, the current time is used.
+-- @string[opt] verb The HTTP verb to sign. If nil or omitted, defaults to "GET".
+-- @treturn string authorization: The authorization section of the HTTP header.
 -- @usage local header = { authorization = tools:GetHeaderAuthorization("/api/wow/character/Frostmourne/Choonster") }
 function tools:GetHeaderAuthorization(path, time, verb)
 	if not self:IsAuthenticated() then return end
@@ -85,8 +73,8 @@ end
 
 --- Register your public and private application keys for use in the authorization header.
 -- Both keys are stored in a private table that outside code has no access to.
--- @param publicKey (string)Your public key.  
--- @param privateKey (string) Your private key.
+-- @string publicKey Your public key.  
+-- @string privateKey Your private key.
 -- @usage tools:RegisterKeys("xxxxxxxxxxxxxxxxx", "xxxxxxxxxxxxxxxxx")
 function tools:RegisterKeys(publicKey, privateKey)
 	Set(self, "PUBLIC", publicKey)
@@ -95,29 +83,27 @@ function tools:RegisterKeys(publicKey, privateKey)
 end
 
 --- Has this copy had application keys registered?
--- @return isAuthenticated (boolean)
+-- @treturn bool isAuthenticated
 function tools:IsAuthenticated()
 	return Get(self, "AUTHENTICATED")
 end
 
 -- Send a HTTP GET request. (No longer public)
 -- Used as a backend for :SendRequest. (No longer used for auction data dumps)
--- @param path (string) The path to send the request to (usually starting with /api/wow/).
--- @param fields (string, optional) A list of comma-separated fields to query.
--- @param locale (string, optional) The locale to retrieve the data in. If nil or omitted, the locale set with :SetLocale will be used.
--- @param reqType (string, optional) The type of request you're sending. Used internally for caching and usage statistics. If nil or omitted, "custom" will be used.
--- @param lastModified (string, optional) A HTTP date string used in the If-Modified-Since header. Only used when forceRefresh is nil/false.
--- @param forceRefresh (boolean, optional) If true, force a refresh by sending the request without an If-Modified-Since header.
--- @return success (boolean) Did the query succeed?
--- @return result: (string) The raw JSON data.
--- @return code: (number) The HTTP response status code.
--- @return status: (string) The full HTTP response status.
--- @return headers: (table) The HTTP headers of the response.
+-- @string path The path to send the request to (usually starting with /api/wow/).
+-- @string[opt] fields A list of comma-separated fields to query.
+-- @string[opt] locale The locale to retrieve the data in. If nil or omitted, the locale set with :SetLocale will be used.
+-- @string[opt] lastModified A HTTP date string used in the If-Modified-Since header. Only used when forceRefresh is nil/false.
+-- @bool[opt] forceRefresh If true, force a refresh by sending the request without an If-Modified-Since header.
+-- @treturn bool success Did the query succeed?
+-- @treturn string result: The raw JSON data.
+-- @treturn number code: The HTTP response status code.
+-- @treturn string status: The full HTTP response status.
+-- @treturn table headers: The HTTP headers of the response.
 local function SendRequestRaw(path, fields, locale, lastModified, forceRefresh)
 	local secure = https and self:IsAuthenticated()
 	fields = fields or ""
 	locale = locale or self:GetLocale()
-	reqType = reqType or "custom"
 	wipe(sinkTable)
 	
 	
@@ -147,21 +133,21 @@ local function SendRequestRaw(path, fields, locale, lastModified, forceRefresh)
 end
 
 --- Send a HTTP GET request or retrieve cached results where appropriate.
--- Used as a backend for most data retrieval functions.
--- @param path (string) The path to send the request to (usually starting with /api/wow/).
--- @param fields (string, optional) A list of comma-separated fields to query.
--- @param locale (string, optional) The locale to retrieve the data in. If nil or omitted, the locale set with :SetLocale will be used. Note that although all data retrieval functions support this parameter, not all APIs make use of it.
--- @param reqType (string, optional) The type of request you're sending. Used internally for caching and usage statistics. If nil or omitted, "custom" will be used.
--- @param cachePath (string, optional) A cache path assembled with the joinPath function. If nil or omitted, the cache won't be used.
--- @param expires (number, optional) The number of seconds before the result should be refreshed. If less than this amount of time has passed since the numeric time in the "lastModified" field of the result, a cached result will be returned. If nil or omitted, a request will always be sent.
--- @param forceRefresh (boolean, optional) If true, force a refresh by sending the request without an If-Modified-Since header.
--- @return success: (boolean) Did the query succeed?
--- @return result: (table) The decoded JSON data.
--- @return code: (number) The HTTP response status code. If no request was sent, this will be 304.5.
--- @return status: (string) The full HTTP response status. If no request was sent, this will be "No request sent".
--- @return headers: (table or nil) The HTTP headers of the response. If no request was sent, this will be nil.
--- @return time: (number) The number of seconds between the function being called and the results being returned, calculated with os.time().
--- @return clock: (number) The number of seconds of CPU time used between the function being called and the results being returned, calculated with os.clock().
+-- Used as a backend for all data retrieval functions.
+-- @string path The path to send the request to (usually starting with /api/wow/).
+-- @string[opt] fields A list of comma-separated fields to query.
+-- @string[opt] locale The locale to retrieve the data in. If nil or omitted, the locale set with :SetLocale will be used. Note that although all data retrieval functions support this parameter, not all APIs make use of it.
+-- @string[opt] reqType The type of request you're sending. Used internally for caching and usage statistics. If nil or omitted, "custom" will be used.
+-- @string[opt] cachePath A cache path assembled with the joinPath function. If nil or omitted, the cache won't be used.
+-- @number[opt] expires The number of seconds before the result should be refreshed. If less than this amount of time has passed since the numeric time in the "lastModified" field of the result, a cached result will be returned. If nil or omitted, a request will always be sent.
+-- @bool[opt] forceRefresh If true, force a refresh by sending the request without an If-Modified-Since header.
+-- @treturn bool success: Did the query succeed?
+-- @treturn table result: The decoded JSON data.
+-- @treturn number code: The HTTP response status code. If no request was sent, this will be 304.
+-- @treturn string status: The full HTTP response status. If no request was sent, this will be "No request sent".
+-- @treturn table headers: The HTTP headers of the response. If no request was sent, this will be nil.
+-- @treturn number time: The number of seconds between the function being called and the results being returned, calculated with os.time().
+-- @treturn number clock: The number of seconds of CPU time used between the function being called and the results being returned, calculated with os.clock().
 function tools:SendRequest(path, fields, locale, reqType, cachePath, expires, forceRefresh)
 	local startTime = os.time()
 	local startClock = os.clock()

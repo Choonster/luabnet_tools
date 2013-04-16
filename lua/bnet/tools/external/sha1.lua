@@ -403,11 +403,11 @@ function hmac_sha1(key, text)
 	return sha1(key_xord_with_0x5c .. sha1_binary(key_xord_with_0x36 .. text))
 end
 
-function hmac_sha1_binary(key, text)
+local function hmac_sha1_binary(key, text)
 	return hex_to_binary(hmac_sha1(key, text))
 end
 
---return hmac_sha1 -- Since we only use the one function in luabnet, return it from the main chunk
+return hmac_sha1 -- Since we only use the one function in luabnet, return it from the main chunk. Comment out this line to execute the tests.
 
 --[[-- simple benchmark
 local tstart = os.time()
@@ -418,7 +418,7 @@ while os.time()-tstart<=10 do sha1(string.rep("a", 200)) n = n + 1 end
 print("times: ",n)
 if true then return end
 --]]
----[[------------ VALIDATION TESTS -- uncomment to execute  ------------------------------------
+--[[------------ VALIDATION TESTS -- uncomment to execute  ------------------------------------
 local tstart = os.time()
 
 print(sha1(("x"):rep(64)), "bb2fa3ee7afb9f54c6dfb5d021f14b1ffe40c163")

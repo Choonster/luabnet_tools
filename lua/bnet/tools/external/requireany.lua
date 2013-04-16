@@ -1,4 +1,4 @@
-﻿--[[
+--[[
 Requires the first module listed that exists, else raises like `require`.
 If a non-string is encountered, it is returned.
 Second return value is module name loaded (or '').

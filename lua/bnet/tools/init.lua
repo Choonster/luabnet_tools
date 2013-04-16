@@ -1,13 +1,4 @@
---- Blizzard Battle.net Community Platform API Library
--- Easily retrieve various types of data from Blizzard's API in the format of Lua tables.
--- This module implements the basic methods used by the bnet.wow and bnet.d3 modules.
--- @class: module
--- @name: bnet.tools
-
---[[
-This is just here so LuaDoc recognises this as a module.
-module("bnet.tools")
-]]
+-- This module implements the basic methods used by the luabnet_wow and luabnet_d3 modules.
 
 local newproxy = newproxy
 local getmetatable, setmetatable = getmetatable, setmetatable
@@ -33,9 +24,9 @@ local requireany = require("bnet.tools.external.requireany")
 
 local debugprint; -- Declare this as local here so it's available to the whole file. This is defined in the Data Storage section.
 
---[[----------------
---Table operations--
---]]----------------
+--[[
+-- Table operations --
+--]]
 
 local function wipe(t)
 	for k, v in pairs(t) do
@@ -60,7 +51,6 @@ do
 				end,
 				__pairs = function(p) return pairs(tab) end, -- Lua 5.2 (__pairs/__ipairs need to be functions, not tables)
 				__ipairs = function(p) return ipairs(tab) end,
-				__metatable = false
 			}
 			self[tab] = meta
 			return meta
@@ -76,9 +66,9 @@ do
 	end
 end
 	
---[[------------
+--[[
 -- Filesystem --
---]]------------
+--]]
 			  --Library names:  lzlib,   lua-zlib,   compress.deflatelua
 local lib, libname = requireany("bnet.tools requires gzip (lzlib), zlib (lua-zlib) or compress.deflatelua to function. See README.md for a full list of dependencies.", "gzip", "lua-zlib", "compress.deflatelua")
 local decompress;
@@ -122,9 +112,9 @@ elseif libname == "compress.deflatelua" then
 	end
 end
 
---[[-------
+--[[
 -- Cache --
---]]-------
+--]]
 
 local cachedefault = {
 	wow = {
@@ -193,8 +183,17 @@ local reqTypes = {
 		--achievement
 		"achievement",
 		
+		--battlepet
+		"battlePetAbilityInfo",
+		"battlePetSpeciesInfo",
+		"battlePetSpeciesStats",
+		
 		--character
 		"charProfile",
+		
+		--challengemode
+		"challengeModeLeaderboard",
+		
 		
 		--guild
 		"guildProfile",
@@ -212,8 +211,11 @@ local reqTypes = {
 		--pvp
 		"arenaTeam",
 		"arenaRanking",
+		"ratedBGLadder",
 		
 		--data
+		"battlegroups",
+		"battlePetTypes",
 		"charRaces",
 		"charAchievements",
 		"charClasses",
@@ -221,8 +223,8 @@ local reqTypes = {
 		"guildRewards",
 		"guildAchievements",
 		"itemClasses",
-		"battlegroups",
-	
+		"talents",
+			
 		--quest
 		"questInfo",
 		
@@ -334,9 +336,9 @@ local function GetCache(self, reqType, locale, path)
 end
 
 
---[[------------
---Data Storage--
---]]------------
+--[[
+-- Data Storage --
+--]]
 
 local private = {}
 private.DEBUGFILE = plfuncs.appfile(".bnet_debug.log") -- Initialise the debug path so debugprint will work before the debug file has been explicitly set.
@@ -374,9 +376,9 @@ end
 Set("CACHE_LOAD", default_loadcache)
 Set("CACHE_SAVE", default_savecache)
 
---[[------
---Module--
---]]------
+--[[
+-- Module --
+--]]
 local modules = {
 	"core",
 	"authentication",

@@ -1,4 +1,4 @@
-﻿-- This is a subset of functions from the Penlight modules pl.app and pl.path modified so that they don't depend on LuaFileSystem.
+-- This is a subset of functions from the Penlight modules pl.app and pl.path modified so that they don't depend on LuaFileSystem.
 -- Penlight's licence (the MIT licence) is included below.
 
 --[[

@@ -1,13 +1,6 @@
---- Blizzard Battle.net Community Platform API Library
--- Easily retrieve various types of data from Blizzard's API in the format of Lua tables.
--- @class: module
--- @name: bnet.tools.core
--- Implements the basic methods used by the library.
-
---[[
-This is just here so LuaDoc recognises this as a module.
-module("bnet.tools.core")
-]]
+--- Implements the basic methods used by the library.
+-- @module core
+-- @alias tools
 
 local storage = ...
 local tools = storage.module
@@ -17,11 +10,29 @@ local Get, Set, GetCache, SetCache, InitCache, GetCacheTable, SetCacheTable = un
 local type, assert, error = type, assert, error
 
 --- The valid locales for each region and the localised and English language names (in UTF-8 encoding).
--- @class table
+-- @table regions
+-- @field us Americas
+-- @field us.en_US English (US)
+-- @field us.es_MX Latin American Spanish
+-- @field us.pt_BR Brazilian Portuguese
+-- @field eu Europe
+-- @field eu.en_GB English (EU)
+-- @field eu.es_ES Spanish
+-- @field eu.fr_FR French
+-- @field eu.ru_RU Russian
+-- @field eu.de_DE German
+-- @field eu.pt_PT Portuguese
+-- @field eu.it_IT Italian
+-- @field kr Korea
+-- @field kr.ko_KR Korean
+-- @field tw Taiwan
+-- @field tw.zh_TW Traditional Chinese
+-- @field cn China
+-- @field cn.zh_CN Simplified Chinese
 local regions = {
 	us = {
 		en_US = "English (US)",
-		es_MX = "Español (AL) - Latin American Spanish", 
+		es_MX = "Español (AL) - Latin American Spanish",
 		pt_BR = "Português (AL) - Brazilian Portuguese",
 	},
 	eu = {
@@ -46,10 +57,10 @@ local regions = {
 
 --- Set the game region and locale used by this copy of the library.
 -- Each region has a different set of valid locales.
--- @param region (string) A two letter region code.
--- @param locale (string) The default locale to use when querying the API.
+-- @string region A two letter region code.
+-- @string locale The default locale to use when querying the API.
 -- @usage tools:SetLocale("us", "en_US")
--- -- See the regions table in bnet.lua for the valid regions/locales.
+-- @see regions
 function tools:SetLocale(region, locale)
 	if not regions[region] then
 		error("Invalid region code")
@@ -68,7 +79,7 @@ function tools:SetLocale(region, locale)
 end
 
 --- Get the current locale of this copy of the library.
--- @return locale: (string) The current locale code.
+-- @treturn string locale: The current locale code.
 -- @usage local locale = tools:GetLocale()
 -- assert(locale == "en_US")
 function tools:GetLocale()
@@ -76,7 +87,7 @@ function tools:GetLocale()
 end
 
 --- Get the current region of this copy of the library
--- @return region: (string) The current region.
+-- @treturn string region: The current region.
 -- @usage local region = tools:GetRegion()
 -- assert(region == "us")
 function tools:GetRegion()
@@ -84,9 +95,9 @@ function tools:GetRegion()
 end
 
 --- Get extended locale info for this copy of the library.
--- @return locale: (string) The current locale code.
--- @return region: (string) The current region code.
--- @return localeName: (string) The full name of the current locale.
+-- @treturn string locale: The current locale code.
+-- @treturn string region: The current region code.
+-- @treturn string localeName: The full name of the current locale.
 -- @usage local locale, region, localeName = tools:GetFullLocale()
 -- assert(locale == "en_US")
 -- assert(region == "us")
@@ -97,7 +108,7 @@ function tools:GetFullLocale()
 end
 
 --- Get the current host address for this copy of the library (defined by the region).
--- @return host: (string) The current host address.
+-- @treturn string host: The current host address.
 -- @usage local host = tools:GetHost()
 -- assert(host == "us.battle.net")
 function tools:GetHost()
@@ -105,19 +116,19 @@ function tools:GetHost()
 end
 
 --- Enable/disable debugging output.
--- @param value (boolean) If true-equivalent, enable debugging output; else disable it.
+-- @bool value If true-equivalent, enable debugging output; else disable it.
 function tools:EnableDebug(value)
 	Set("DEBUG", not not value) -- Double not converts it to a boolean
 end
 
 --- Returns whether or not debugging output is enabled.
--- @return enabled: (boolean) true if output is enabled, false if not.
+-- @treturn bool enabled: true if output is enabled, false if not.
 function tools:IsDebugEnabled()
 	return Get("DEBUG")
 end
 
 --- Change the file debugging information is output to.
--- @param path (string) The path to a file.
+-- @string path The path to a file.
 function tools:SetDebugLogFile(path)
 	local t = type(path)
 	assert(t == "string", ("String expected, got %s"):format(t))
@@ -125,7 +136,7 @@ function tools:SetDebugLogFile(path)
 end
 
 --- Gets the game this copy of the library is for.
--- @return game: (string) Either "wow" or "d3", depending on which module the library was created with.
+-- @treturn string game: Either "wow" or "d3", depending on which module the library was created with.
 function tools:GetGame()
 	return Get(self, "GAME")
 end
@@ -134,7 +145,7 @@ end
 -- You only need to change this if you want to load the cache in a different way from the default function (e.g. from a database or a file in a different format).
 -- The function receives a single argument, which is the current cache table. It should return a single table in the same format as the default cache table.
 -- Both this function and the cache itself are shared between all instances of the library.
--- @param func (function(currentCache)) A function to load a new cache table from some form of storage.
+-- @tparam function(currentCache) func A function to load a new cache table from some form of storage.
 function tools:SetCacheLoadFunction(func)
 	Set("CACHE_LOAD", func)
 end
@@ -143,7 +154,7 @@ end
 -- You only need to change this if you want to save the cache in a different way from the default function (e.g. to a database or a file in a different format).
 -- The function receives a single argument, which is the current cache table.
 -- Both this function and the cache itself are shared between all instances of the library.
--- @param func (function(currentCache)) A function to save the cache to some form of storage.
+-- @tparam function(currentCache) func A function to save the cache to some form of storage.
 function tools:SetCacheSaveFunction(func)
 	Set("CACHE_SAVE", func)
 end

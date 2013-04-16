@@ -1,0 +1,482 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>luabnet_tools Documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>luabnet_tools</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Tables">Tables</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul>
+  <li><a href="../modules/authentication.html">authentication</a></li>
+  <li><strong>core</strong></li>
+</ul>
+<h2>Topics</h2>
+<ul>
+  <li><a href="../topics/readme.md.html">readme.md</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>core</code></h1>
+
+<p>Implements the basic methods used by the library.</p>
+<p>
+
+</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#tools:SetLocale">tools:SetLocale&nbsp;(region, locale)</a></td>
+	<td class="summary">Set the game region and locale used by this copy of the library.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tools:GetLocale">tools:GetLocale&nbsp;()</a></td>
+	<td class="summary">Get the current locale of this copy of the library.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tools:GetRegion">tools:GetRegion&nbsp;()</a></td>
+	<td class="summary">Get the current region of this copy of the library</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tools:GetFullLocale">tools:GetFullLocale&nbsp;()</a></td>
+	<td class="summary">Get extended locale info for this copy of the library.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tools:GetHost">tools:GetHost&nbsp;()</a></td>
+	<td class="summary">Get the current host address for this copy of the library (defined by the region).</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tools:EnableDebug">tools:EnableDebug&nbsp;(value)</a></td>
+	<td class="summary">Enable/disable debugging output.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tools:IsDebugEnabled">tools:IsDebugEnabled&nbsp;()</a></td>
+	<td class="summary">Returns whether or not debugging output is enabled.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tools:SetDebugLogFile">tools:SetDebugLogFile&nbsp;(path)</a></td>
+	<td class="summary">Change the file debugging information is output to.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tools:GetGame">tools:GetGame&nbsp;()</a></td>
+	<td class="summary">Gets the game this copy of the library is for.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tools:SetCacheLoadFunction">tools:SetCacheLoadFunction&nbsp;(func)</a></td>
+	<td class="summary">Sets the function used to load the cache.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tools:SetCacheSaveFunction">tools:SetCacheSaveFunction&nbsp;(func)</a></td>
+	<td class="summary">Sets the function used to save the cache.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tools:LoadCache">tools:LoadCache&nbsp;()</a></td>
+	<td class="summary">Load the cache using the cache loading function set with :SetCacheLoadFunction, or the default function if no function has been set.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tools:SaveCache">tools:SaveCache&nbsp;()</a></td>
+	<td class="summary">Save the cache using the cache loading function set with :SetCacheSaveFunction, or the default function if no function has been set.</td>
+	</tr>
+</table>
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#regions">regions</a></td>
+	<td class="summary">The valid locales for each region and the localised and English language names (in UTF-8 encoding).</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2><a name="Functions"></a>Functions</h2>
+    <dl class="function">
+    <dt>
+    <a name = "tools:SetLocale"></a>
+    <strong>tools:SetLocale&nbsp;(region, locale)</strong>
+    </dt>
+    <dd>
+    Set the game region and locale used by this copy of the library.
+ Each region has a different set of valid locales.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">region</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         A two letter region code.</li>
+        <li><span class="parameter">locale</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The default locale to use when querying the API.</li>
+    </ul>
+
+
+
+    <h3>see also:</h3>
+    <ul>
+         <a href="../modules/core.html#regions">regions</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">tools:SetLocale(<span class="string">"us"</span>, <span class="string">"en_US"</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "tools:GetLocale"></a>
+    <strong>tools:GetLocale&nbsp;()</strong>
+    </dt>
+    <dd>
+    Get the current locale of this copy of the library.
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+          <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        locale: The current locale code.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> locale = tools:GetLocale()
+ <span class="global">assert</span>(locale == <span class="string">"en_US"</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "tools:GetRegion"></a>
+    <strong>tools:GetRegion&nbsp;()</strong>
+    </dt>
+    <dd>
+    Get the current region of this copy of the library
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+          <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        region: The current region.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> region = tools:GetRegion()
+ <span class="global">assert</span>(region == <span class="string">"us"</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "tools:GetFullLocale"></a>
+    <strong>tools:GetFullLocale&nbsp;()</strong>
+    </dt>
+    <dd>
+    Get extended locale info for this copy of the library.
+
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+          <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        locale: The current locale code.</li>
+        <li>
+          <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        region: The current region code.</li>
+        <li>
+          <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        localeName: The full name of the current locale.</li>
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"> <span class="keyword">local</span> locale, region, localeName = tools:GetFullLocale()
+ <span class="global">assert</span>(locale == <span class="string">"en_US"</span>)
+ <span class="global">assert</span>(region == <span class="string">"us"</span>)
+ <span class="global">assert</span>(localeName == <span class="string">"English (US)"</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "tools:GetHost"></a>
+    <strong>tools:GetHost&nbsp;()</strong>
+    </dt>
+    <dd>
+    Get the current host address for this copy of the library (defined by the region).
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+          <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        host: The current host address.
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="keyword">local</span> host = tools:GetHost()
+ <span class="global">assert</span>(host == <span class="string">"us.battle.net"</span>)</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "tools:EnableDebug"></a>
+    <strong>tools:EnableDebug&nbsp;(value)</strong>
+    </dt>
+    <dd>
+    Enable/disable debugging output.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">value</span>
+            <span class="types"><span class="type">bool</span></span>
+         If true-equivalent, enable debugging output; else disable it.</li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tools:IsDebugEnabled"></a>
+    <strong>tools:IsDebugEnabled&nbsp;()</strong>
+    </dt>
+    <dd>
+    Returns whether or not debugging output is enabled.
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+          <span class="types"><span class="type">bool</span></span>
+        enabled: true if output is enabled, false if not.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tools:SetDebugLogFile"></a>
+    <strong>tools:SetDebugLogFile&nbsp;(path)</strong>
+    </dt>
+    <dd>
+    Change the file debugging information is output to.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+         The path to a file.</li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tools:GetGame"></a>
+    <strong>tools:GetGame&nbsp;()</strong>
+    </dt>
+    <dd>
+    Gets the game this copy of the library is for.
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+          <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        game: Either "wow" or "d3", depending on which module the library was created with.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tools:SetCacheLoadFunction"></a>
+    <strong>tools:SetCacheLoadFunction&nbsp;(func)</strong>
+    </dt>
+    <dd>
+    Sets the function used to load the cache.
+ You only need to change this if you want to load the cache in a different way from the default function (e.g. from a database or a file in a different format).
+ The function receives a single argument, which is the current cache table. It should return a single table in the same format as the default cache table.
+ Both this function and the cache itself are shared between all instances of the library.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">func</span>
+            <span class="types"><span class="type">function(currentCache)</span></span>
+         A function to load a new cache table from some form of storage.</li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tools:SetCacheSaveFunction"></a>
+    <strong>tools:SetCacheSaveFunction&nbsp;(func)</strong>
+    </dt>
+    <dd>
+    Sets the function used to save the cache.
+ You only need to change this if you want to save the cache in a different way from the default function (e.g. to a database or a file in a different format).
+ The function receives a single argument, which is the current cache table.
+ Both this function and the cache itself are shared between all instances of the library.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">func</span>
+            <span class="types"><span class="type">function(currentCache)</span></span>
+         A function to save the cache to some form of storage.</li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tools:LoadCache"></a>
+    <strong>tools:LoadCache&nbsp;()</strong>
+    </dt>
+    <dd>
+    Load the cache using the cache loading function set with :SetCacheLoadFunction, or the default function if no function has been set.
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tools:SaveCache"></a>
+    <strong>tools:SaveCache&nbsp;()</strong>
+    </dt>
+    <dd>
+    Save the cache using the cache loading function set with :SetCacheSaveFunction, or the default function if no function has been set.
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Tables"></a>Tables</h2>
+    <dl class="function">
+    <dt>
+    <a name = "regions"></a>
+    <strong>regions</strong>
+    </dt>
+    <dd>
+    The valid locales for each region and the localised and English language names (in UTF-8 encoding).
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">us</span> Americas
+        <ul>
+        <li><span class="parameter">en_US</span>
+         English (US)</li>
+        <li><span class="parameter">es_MX</span>
+         Latin American Spanish</li>
+        <li><span class="parameter">pt_BR</span>
+         Brazilian Portuguese</li>
+        </li></ul>
+        <li><span class="parameter">eu</span> Europe
+        <ul>
+        <li><span class="parameter">en_GB</span>
+         English (EU)</li>
+        <li><span class="parameter">es_ES</span>
+         Spanish</li>
+        <li><span class="parameter">fr_FR</span>
+         French</li>
+        <li><span class="parameter">ru_RU</span>
+         Russian</li>
+        <li><span class="parameter">de_DE</span>
+         German</li>
+        <li><span class="parameter">pt_PT</span>
+         Portuguese</li>
+        <li><span class="parameter">it_IT</span>
+         Italian</li>
+        </li></ul>
+        <li><span class="parameter">kr</span> Korea
+        <ul>
+        <li><span class="parameter">ko_KR</span>
+         Korean</li>
+        </li></ul>
+        <li><span class="parameter">tw</span> Taiwan
+        <ul>
+        <li><span class="parameter">zh_TW</span>
+         Traditional Chinese</li>
+        </li></ul>
+        <li><span class="parameter">cn</span> China
+        <ul>
+        <li><span class="parameter">zh_CN</span>
+         Simplified Chinese</li>
+        </li></ul>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
