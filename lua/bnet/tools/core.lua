@@ -4,8 +4,8 @@
 
 local storage = ...
 local tools = storage.module
-local debugprint, wipe, createRef, decompress, splitPath, joinPath = unpack(storage.publicFuncs)
-local Get, Set, GetCache, SetCache, InitCache, GetCacheTable, SetCacheTable = unpack(storage.privateFuncs)
+local debugprint, wipe, createProxy, decompress, splitPath, joinPath, assertString, assertNumber = unpack(storage.publicFuncs)
+local Get, Set, GetCache, SetCache, InitCache, GetCacheTable, SetCacheTable, ResetCacheTable = unpack(storage.privateFuncs)
 
 local type, assert, error = type, assert, error
 
@@ -41,7 +41,7 @@ local regions = {
 		fr_FR = "Français - French",
 		ru_RU = "\208\160\209\131\209\129\209\129\208\186\208\184\208\185 - Russian",
 		de_DE = "Deutsch - German",
-		pt_PT = "Português (AL) - Portuguese",
+		pt_PT = "Português (EU) - Portuguese",
 		it_IT = "Italiano - Italian",
 	},
 	kr = {
@@ -75,7 +75,6 @@ function tools:SetLocale(region, locale)
 	Set(self, "LOCALE", locale)
 	Set(self, "REGION", region)
 	InitCache(self)
-	self:SaveCache()
 end
 
 --- Get the current locale of this copy of the library.
@@ -116,9 +115,9 @@ function tools:GetHost()
 end
 
 --- Enable/disable debugging output.
--- @bool value If true-equivalent, enable debugging output; else disable it.
-function tools:EnableDebug(value)
-	Set("DEBUG", not not value) -- Double not converts it to a boolean
+-- @bool enable If true-equivalent, enable debugging output; else disable it.
+function tools:EnableDebug(enable)
+	Set("DEBUG", not not enable) -- Double not converts it to a boolean
 end
 
 --- Returns whether or not debugging output is enabled.
@@ -133,6 +132,19 @@ function tools:SetDebugLogFile(path)
 	local t = type(path)
 	assert(t == "string", ("String expected, got %s"):format(t))
 	Set("DEBUGFILE", path)
+end
+
+--- Enable/disable profiling.
+-- This controls whether or not API request methods return the elapsed time and CPU time values.
+-- @bool enable If true-equivalent, enable profiling; else disable it.
+function tools:EnableProfiling(enable)
+	Set("PROFILING", not not enable)
+end
+
+--- Returns whether or not profiling is enabled.
+-- @treturn bool enabled: true if output is enabled, false if not.
+function tools:IsProfilingEnabled()
+	return Get("PROFILING")
 end
 
 --- Gets the game this copy of the library is for.
@@ -170,4 +182,10 @@ end
 function tools:SaveCache()
 	local saveFunc = Get("CACHE_SAVE")
 	saveFunc(GetCacheTable())
+end
+
+--- Reset the cache to its default empty state.
+function tools:ResetCache()
+	ResetCacheTable()
+	InitCache(self)
 end

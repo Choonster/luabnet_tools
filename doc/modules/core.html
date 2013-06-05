@@ -41,6 +41,7 @@
 <ul>
   <li><a href="../modules/authentication.html">authentication</a></li>
   <li><strong>core</strong></li>
+  <li><a href="../modules/init.html">init</a></li>
 </ul>
 <h2>Topics</h2>
 <ul>
@@ -82,7 +83,7 @@
 	<td class="summary">Get the current host address for this copy of the library (defined by the region).</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#tools:EnableDebug">tools:EnableDebug&nbsp;(value)</a></td>
+	<td class="name" nowrap><a href="#tools:EnableDebug">tools:EnableDebug&nbsp;(enable)</a></td>
 	<td class="summary">Enable/disable debugging output.</td>
 	</tr>
 	<tr>
@@ -92,6 +93,14 @@
 	<tr>
 	<td class="name" nowrap><a href="#tools:SetDebugLogFile">tools:SetDebugLogFile&nbsp;(path)</a></td>
 	<td class="summary">Change the file debugging information is output to.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tools:EnableProfiling">tools:EnableProfiling&nbsp;(enable)</a></td>
+	<td class="summary">Enable/disable profiling.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tools:IsProfilingEnabled">tools:IsProfilingEnabled&nbsp;()</a></td>
+	<td class="summary">Returns whether or not profiling is enabled.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#tools:GetGame">tools:GetGame&nbsp;()</a></td>
@@ -112,6 +121,10 @@
 	<tr>
 	<td class="name" nowrap><a href="#tools:SaveCache">tools:SaveCache&nbsp;()</a></td>
 	<td class="summary">Save the cache using the cache loading function set with :SetCacheSaveFunction, or the default function if no function has been set.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#tools:ResetCache">tools:ResetCache&nbsp;()</a></td>
+	<td class="summary">Reset the cache to its default empty state.</td>
 	</tr>
 </table>
 <h2><a href="#Tables">Tables</a></h2>
@@ -139,10 +152,10 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">region</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          A two letter region code.</li>
         <li><span class="parameter">locale</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          The default locale to use when querying the API.</li>
     </ul>
 
@@ -170,7 +183,7 @@
     <h3>Returns:</h3>
     <ol>
 
-          <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+          <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         locale: The current locale code.
     </ol>
 
@@ -194,7 +207,7 @@
     <h3>Returns:</h3>
     <ol>
 
-          <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+          <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         region: The current region.
     </ol>
 
@@ -218,13 +231,13 @@
     <h3>Returns:</h3>
     <ol>
         <li>
-          <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+          <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         locale: The current locale code.</li>
         <li>
-          <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+          <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         region: The current region code.</li>
         <li>
-          <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+          <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         localeName: The full name of the current locale.</li>
     </ol>
 
@@ -250,7 +263,7 @@
     <h3>Returns:</h3>
     <ol>
 
-          <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+          <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         host: The current host address.
     </ol>
 
@@ -265,14 +278,14 @@
 </dd>
     <dt>
     <a name = "tools:EnableDebug"></a>
-    <strong>tools:EnableDebug&nbsp;(value)</strong>
+    <strong>tools:EnableDebug&nbsp;(enable)</strong>
     </dt>
     <dd>
     Enable/disable debugging output.
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">value</span>
+        <li><span class="parameter">enable</span>
             <span class="types"><span class="type">bool</span></span>
          If true-equivalent, enable debugging output; else disable it.</li>
     </ul>
@@ -311,10 +324,49 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
          The path to a file.</li>
     </ul>
 
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tools:EnableProfiling"></a>
+    <strong>tools:EnableProfiling&nbsp;(enable)</strong>
+    </dt>
+    <dd>
+    Enable/disable profiling.
+ This controls whether or not API request methods return the elapsed time and CPU time values.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">enable</span>
+            <span class="types"><span class="type">bool</span></span>
+         If true-equivalent, enable profiling; else disable it.</li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "tools:IsProfilingEnabled"></a>
+    <strong>tools:IsProfilingEnabled&nbsp;()</strong>
+    </dt>
+    <dd>
+    Returns whether or not profiling is enabled.
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+          <span class="types"><span class="type">bool</span></span>
+        enabled: true if output is enabled, false if not.
+    </ol>
 
 
 
@@ -331,7 +383,7 @@
     <h3>Returns:</h3>
     <ol>
 
-          <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+          <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
         game: Either "wow" or "d3", depending on which module the library was created with.
     </ol>
 
@@ -409,6 +461,19 @@
 
 
 </dd>
+    <dt>
+    <a name = "tools:ResetCache"></a>
+    <strong>tools:ResetCache&nbsp;()</strong>
+    </dt>
+    <dd>
+    Reset the cache to its default empty state.
+
+
+
+
+
+
+</dd>
 </dl>
     <h2><a name="Tables"></a>Tables</h2>
     <dl class="function">
@@ -475,7 +540,7 @@
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
-<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3</a></i>
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3.12</a></i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

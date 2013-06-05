@@ -12,21 +12,27 @@ local http   = require("socket.http") -- LuaSocket
 local url_absolute = require("socket.url").absolute
 local base64 = require("mime").b64
 
-local https_ok, https = pcall(require, "ssl.https") -- LuaSec (optional dependency)
-if not https_ok then
-	https_ok, https = pcall(require, "https") -- LuaForWindows seems to install it in <path>/ssl/https.lua, but Ubuntu's software center installs it in <path>/https.lua
+local https, hmac_sha1;
+do
+	local ok;
+	ok, https = pcall(require, "ssl.https") -- LuaSec (optional dependency)
+	if not ok then
+		ok, https = pcall(require, "https") -- LuaForWindows seems to install it in <path>/ssl/https.lua, but Ubuntu's software center installs it in <path>/https.lua
+	end
+	if not ok then -- If it wasn't loaded, https will contain an error message instead of the module, so set it to nil instead.
+		https = nil
+	end
+	
+	if https then -- Only load this if we have LuaSec installed
+		hmac_sha1 = require("bnet.tools.external.sha1") -- SHA1/HMAC-SHA1 algorithms, packaged with this library.
+	end
 end
-https = https_ok and https or nil -- If it wasn't loaded, https will contain an error message instead of the module, so set it to nil instead.
 
-local hmac_sha1;
-if https then -- Only load this if we have LuaSec installed
-	hmac_sha1 = require("bnet.tools.external.sha1") -- SHA1/HMAC-SHA1 algorithms, packaged with this library. See sha1.lua for licence and attribution.
-end
 
 local storage = ...
 local tools = storage.module
-local debugprint, wipe, createRef, decompress, splitPath, joinPath = unpack(storage.publicFuncs)
-local Get, Set, GetCache, SetCache, InitCache, GetCacheTable, SetCacheTable = unpack(storage.privateFuncs)
+local debugprint, wipe, createProxy, decompress, splitPath, joinPath, assertString, assertNumber = unpack(storage.publicFuncs)
+local Get, Set, GetCache, SetCache, InitCache, GetCacheTable, SetCacheTable, ResetCacheTable = unpack(storage.privateFuncs)
 
 local format, table_concat = string.format, table.concat
 local difftime, time, date, clock = os.difftime, os.time, os.date, os.clock
@@ -39,6 +45,7 @@ local requestTable = {
 	options = "all",
 	verify = "none",
 	sink = sink,
+	headers = headerTable,
 }
 
 --				"Fri, 01 Jun 2011 20:59:24 GMT"
@@ -100,11 +107,10 @@ end
 -- @treturn number code: The HTTP response status code.
 -- @treturn string status: The full HTTP response status.
 -- @treturn table headers: The HTTP headers of the response.
-local function SendRequestRaw(path, fields, locale, lastModified, forceRefresh)
+local function SendRequestRaw(self, path, fields, locale, lastModified, forceRefresh)
 	local secure = https and self:IsAuthenticated()
 	fields = fields or ""
 	locale = locale or self:GetLocale()
-	wipe(sinkTable)
 	
 	
 	urlTable.scheme = secure and "https" or "http"
@@ -119,11 +125,11 @@ local function SendRequestRaw(path, fields, locale, lastModified, forceRefresh)
 	headerTable["Accept-Encoding"] = "gzip"
 	
 	requestTable.url = url_absolute(urlTable)
-	requestTable.headers = headerTable
 	
 	debugprint("sending request", path)
 	local success, code, headers, status = (secure and https or http).request(requestTable)
 	local resultJSON = table_concat(sinkTable)
+	wipe(sinkTable)
 	
 	if headers["content-encoding"] == "gzip" then
 		resultJSON = decompress(resultJSON)
@@ -142,15 +148,19 @@ end
 -- @number[opt] expires The number of seconds before the result should be refreshed. If less than this amount of time has passed since the numeric time in the "lastModified" field of the result, a cached result will be returned. If nil or omitted, a request will always be sent.
 -- @bool[opt] forceRefresh If true, force a refresh by sending the request without an If-Modified-Since header.
 -- @treturn bool success: Did the query succeed?
--- @treturn table result: The decoded JSON data.
+-- @treturn Proxy result: A proxy to the decoded JSON data.
 -- @treturn number code: The HTTP response status code. If no request was sent, this will be 304.
 -- @treturn string status: The full HTTP response status. If no request was sent, this will be "No request sent".
 -- @treturn table headers: The HTTP headers of the response. If no request was sent, this will be nil.
--- @treturn number time: The number of seconds between the function being called and the results being returned, calculated with os.time().
--- @treturn number clock: The number of seconds of CPU time used between the function being called and the results being returned, calculated with os.clock().
+-- @treturn number time: The number of seconds between the function being called and the results being returned, calculated with os.time(). This will be nil if profiling is disabled.
+-- @treturn number clock: The number of seconds of CPU time used between the function being called and the results being returned, calculated with os.clock().  This will be nil if profiling is disabled.
 function tools:SendRequest(path, fields, locale, reqType, cachePath, expires, forceRefresh)
-	local startTime = os.time()
-	local startClock = os.clock()
+	local profilingEnabled = self:IsProfilingEnabled()
+	
+	local startTime, startCPU;
+	if profilingEnabled then
+		startTime, startCPU = time(), clock()
+	end
 	
 	expires = expires or 0
 	reqType = reqType or "custom"
@@ -174,8 +184,11 @@ function tools:SendRequest(path, fields, locale, reqType, cachePath, expires, fo
 	
 	-- If the result has expired or we've been told to force a refresh, send a request; otherwise use the cached data.
 	if diff > expires or forceRefresh then
-		_, resultJSON, code, status, headers = self:SendRequestRaw(path, fields, locale, lastModStr, forceRefresh)
-		result = (resultJSON and resultJSON ~= "") and json_decode(resultJSON) or resultJSON
+		_, resultJSON, code, status, headers = SendRequestRaw(self, path, fields, locale, lastModStr, forceRefresh)
+		if resultJSON and resultJSON ~= "" then
+			_, result = pcall(json_decode, resultJSON)
+		end
+		result = result or resultJSON
 	else
 		code, status = 304, "No request sent" -- Not a real HTTP status message, only used to indicate that the cache is still valid
 	end
@@ -210,5 +223,10 @@ function tools:SendRequest(path, fields, locale, reqType, cachePath, expires, fo
 		result = (result and result.reason)
 	end
 	
-	return success, createRef(result), code, status, headers, difftime(time(), startTime), difftime(clock(), startClock)
+	local elapsedTime, cpuTime;
+	if profilingEnabled then
+		elapsedTime, cpuTime = difftime(time(), startTime), difftime(clock(), startCPU)
+	end
+	
+	return success, createRef(result), code, status, headers, elapsedTime, cpuTime
 end

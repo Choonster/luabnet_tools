@@ -1,0 +1,332 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>luabnet_tools Documentation</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>luabnet_tools</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Class_Proxy">Class Proxy </a></li>
+<li><a href="#Table_Manipulation">Table Manipulation </a></li>
+<li><a href="#Filesystem">Filesystem </a></li>
+<li><a href="#Cache_manipulation">Cache manipulation </a></li>
+<li><a href="#Debugging">Debugging</a></li>
+<li><a href="#Argument_checking">Argument checking </a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul>
+  <li><a href="../modules/authentication.html">authentication</a></li>
+  <li><a href="../modules/core.html">core</a></li>
+  <li><strong>init</strong></li>
+</ul>
+<h2>Topics</h2>
+<ul>
+  <li><a href="../topics/readme.md.html">readme.md</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>init</code></h1>
+
+<p>Implements the basic functions used by the rest of this library.</p>
+<p>
+
+</p>
+
+
+<h2><a href="#Class_Proxy">Class Proxy </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#Proxy:test">Proxy:test&nbsp;()</a></td>
+	<td class="summary">It's a test</td>
+	</tr>
+</table>
+<h2><a href="#Table_Manipulation">Table Manipulation </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#wipe">wipe&nbsp;(t)</a></td>
+	<td class="summary">Empty a table.</td>
+	</tr>
+</table>
+<h2><a href="#Filesystem">Filesystem </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#decompress">decompress&nbsp;(data)</a></td>
+	<td class="summary">Decompress a gzipped string</td>
+	</tr>
+</table>
+<h2><a href="#Cache_manipulation">Cache manipulation </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#splitPath">splitPath&nbsp;(path)</a></td>
+	<td class="summary">Splits a cache path into its component strings</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#joinPath">joinPath&nbsp;(...)</a></td>
+	<td class="summary">Joins an arbitrary number of strings into a cache path</td>
+	</tr>
+</table>
+<h2><a href="#Debugging">Debugging</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#debugprint">debugprint&nbsp;(...)</a></td>
+	<td class="summary">If debugging output is enabled, prints its arguments to the debug file with a timestamp.</td>
+	</tr>
+</table>
+<h2><a href="#Argument_checking">Argument checking </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#assertString">assertString&nbsp;(n, val)</a></td>
+	<td class="summary">Assert that an argument is a string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#assertNumber">assertNumber&nbsp;(n, val)</a></td>
+	<td class="summary">Assert that an argument is a number</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2><a name="Class_Proxy"></a>Class Proxy </h2>
+        A read-only proxy pointing to a decoded JSON result table.
+ Proxies are regular empty tables with their __index, __pairs and __ipairs metamethods pointing to the decoded result table.
+ Access to a subtable of the result table will return a Proxy pointing to the subtable. Non-table values are returned as normal.
+ Attempting to change the value of a Proxy's key will throw an error.
+    <dl class="function">
+    <dt>
+    <a name = "Proxy:test"></a>
+    <strong>Proxy:test&nbsp;()</strong>
+    </dt>
+    <dd>
+    It's a test
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Table_Manipulation"></a>Table Manipulation </h2>
+        Table Manipulation
+    <dl class="function">
+    <dt>
+    <a name = "wipe"></a>
+    <strong>wipe&nbsp;(t)</strong>
+    </dt>
+    <dd>
+    Empty a table.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">t</span>
+            <span class="types"><span class="type">tab</span></span>
+         The table to empty</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+          <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.5">table</a></span>
+        The newly empty table
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Filesystem"></a>Filesystem </h2>
+        Filesystem
+    <dl class="function">
+    <dt>
+    <a name = "decompress"></a>
+    <strong>decompress&nbsp;(data)</strong>
+    </dt>
+    <dd>
+    Decompress a gzipped string
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">data</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         The data string to decompress</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+          <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+        The decompressed data string
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Cache_manipulation"></a>Cache manipulation </h2>
+        Cache manipulation
+    <dl class="function">
+    <dt>
+    <a name = "splitPath"></a>
+    <strong>splitPath&nbsp;(path)</strong>
+    </dt>
+    <dd>
+    Splits a cache path into its component strings
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         The path to split</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+          <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+        ...: The components of the path
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "joinPath"></a>
+    <strong>joinPath&nbsp;(...)</strong>
+    </dt>
+    <dd>
+    Joins an arbitrary number of strings into a cache path
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">...</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         The component strings</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+          <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+        path: The joined path string
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Debugging"></a>Debugging</h2>
+    <dl class="function">
+    <dt>
+    <a name = "debugprint"></a>
+    <strong>debugprint&nbsp;(...)</strong>
+    </dt>
+    <dd>
+    If debugging output is enabled, prints its arguments to the debug file with a timestamp.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">...</span>
+         The arguments to print</li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2><a name="Argument_checking"></a>Argument checking </h2>
+        Argument checking
+    <dl class="function">
+    <dt>
+    <a name = "assertString"></a>
+    <strong>assertString&nbsp;(n, val)</strong>
+    </dt>
+    <dd>
+    Assert that an argument is a string.  This is an alias to Penlight's <code>utils.assert_string</code> function.
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">n</span>
+            <span class="types"><span class="type">int</span></span>
+         The argument index</li>
+        <li><span class="parameter">val</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.2/manual.html#6.4">string</a></span>
+         A value that must be a string</li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "assertNumber"></a>
+    <strong>assertNumber&nbsp;(n, val)</strong>
+    </dt>
+    <dd>
+    Assert that an argument is a number
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">n</span>
+            <span class="types"><span class="type">int</span></span>
+         The argument index</li>
+        <li><span class="parameter">val</span>
+            <span class="types"><span class="type">number</span></span>
+         A value that must be a number</li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.3.12</a></i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
